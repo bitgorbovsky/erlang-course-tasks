@@ -214,44 +214,18 @@ false
    Функция должна принимать либо список вида `"AAGGUU"` либо список вида `[a, a, g, g, u, u]`.
  - Напишите функцию, которая из заданной цепочки РНК/ДНК вырезает заданную последовательность из трех нуклеотидов. Пример: `cut_rdna("AAGGTT", "AGG")  => "ATT"`.
 
-#### 1.8. База данных
-Напишите модуль db.erl, создающий базу данных, в которой можно хранить, записывать и удалять элементы.
-Функция `destroy/1` удаляет базу данных. Сборщик мусора выполнит всю работу за вас. Но в том случае,
-если база хранится в файле, при вызове функции `destroy` вам придётся удалить этот файл. Функция `destroy`
-включена для полноты интерфейса. При выполнении этого упражнения функциями из модулей *[lists](http://erlang.org/doc/man/lists.html)*, *[proplists](http://erlang.org/doc/man/proplists.html)*, *[dict](http://erlang.org/doc/man/dict.html)* пользоваться нельзя. Все рекурсивные функции должны быть написаны вами. Подсказка: используйте списки и кортежи в качестве основного типа данных. При тестировании помните, что все переменные могут связываться со значением только один раз.
+#### 1.8. Работа с JSON объектами
+Имплементируйте модуль для работы с JSON объектами со следующей спецификацией. Используйте ``map()`` для представления JsonObj.
 
-Интерфейс:
 ```erlang
-db:new() -> Db.
-db:destroy(Db) -> ok.
-db:write(Key, Element, Db) -> NewDb.
-db:delete(Key, Db) -> NewDb.
-db:read(Key, Db) -> {ok, Element} | {error, instance}.
-db:match(Element, Db) -> [Keyl, ..., KeyN].
-```
+Key = string(),
+KeySpec = string(),
+BasicValue = string() | boolean() | integer() | float()
+ValueSpec = BasicValue | [BasicValue] | {Key, ValueSpec} | [{Key, ValueSpec}]
 
-Пример использования в интерпретаторе:
-```erlang
-1> c(db).
-{ok,db}
-2> Db = db:new().
-[]
-3> Dbl = db:write(francesco, london, Db).
-[{francesco,london}]
-4> Db2 = db:write(lelle, 'Stockholm', Dbl).
-[{lelle,'Stockholm'},{francesco,london}]
-5> db:read(francesco, Db2).
-{ok,london}
-6> Db3 = db:write(joern, 'Stockholm', Db2).
-[{joern,'Stockholm'}, {lelle,'Stockholm'}, {francesco,london}]
-7> db:read(ola, Db3).
-{error,instance}
-8> db:match('Stockholm', Db3).
-[joern,lelle]
-9> Db4 = db:delete(lelle, Db3).
-[{joern,'Stockholm'}, {francesco,london}]
-10> db:match('Stockholm', Db4).
-[joern]
+json:new([{Key, ValueSpec}]) -> JsonObj.
+json:read(KeySpec, JsonObj) -> {ok, ValueSpec} | {error, not_found}
+json:write(KeySpec, JsonObj) -> JsonObj | {error, not_found}
 ```
 
 #### 1.9.\* Простой вычислитель (задача повышенной сложности)
