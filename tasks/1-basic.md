@@ -213,9 +213,9 @@ KeySpec = string(),
 BasicValue = string() | boolean() | integer() | float()
 ValueSpec = BasicValue | [BasicValue] | {Key, ValueSpec} | [{Key, ValueSpec}]
 
-json.new([{Key, ValueSpec}]) -> JsonObj.
-json.read(KeySpec, JsonObj) -> {ok, ValueSpec} | {error, not_found}
-json.write(KeySpec, JsonObj) -> JsonObj | {error, not_found}
+json:new([{Key, ValueSpec}]) -> JsonObj.
+json:read(KeySpec, JsonObj) -> {ok, ValueSpec} | {error, not_found}
+json:write(KeySpec, JsonObj) -> JsonObj | {error, not_found}
 ```
 
 #### 1.9.\* Простой вычислитель (задача повышенной сложности)
