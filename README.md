@@ -5,3 +5,6 @@ Tasks for Erlang course, performing by Reksoft
 1. [Basic language review](tasks/1-basic.md)
 2. [Advanced language review, functional programming](tasks/2-advanced.md)
 3. [Actors model](tasks/3-actors.md)
+
+# Practice
+[Practice tasks](tasks.practice.md)
