@@ -156,15 +156,15 @@ LazyList = [1|fun() -> [2|fun() -> ... end] end]
  Этот пример просто показывает организацию вычислений. Теперь давайте
  рассмотрим, как можно построить такой список на самом деле:
 
- ```erlang
+```erlang
 lazy_list(Begin, End, Step) when Begin =< End, Step > 0 ->
-    fun() ->
-        [Begin|lazy_list(Begin + Step, End)]
-    end;
+   fun() ->
+       [Begin, lazy_list(Begin + Step, End, Step)]
+   end;
 lazy_list(_, _, _) ->
-    fun() ->
+   fun() ->
         []
-    end.
+   end.
 ```
 
 Как с таким списком работать? Достаточно просто:
