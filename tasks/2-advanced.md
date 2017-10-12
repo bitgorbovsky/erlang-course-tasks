@@ -159,7 +159,7 @@ LazyList = [1|fun() -> [2|fun() -> ... end] end]
 ```erlang
 lazy_list(Begin, End, Step) when Begin =< End, Step > 0 ->
    fun() ->
-       [Begin, lazy_list(Begin + Step, End, Step)]
+       [Begin|lazy_list(Begin + Step, End, Step)]
    end;
 lazy_list(_, _, _) ->
    fun() ->
