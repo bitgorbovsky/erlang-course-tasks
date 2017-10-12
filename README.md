@@ -7,4 +7,4 @@ Tasks for Erlang course, performing by Reksoft
 3. [Actors model](tasks/3-actors.md)
 
 # Practice
-[Practice tasks](tasks.practice.md)
+[Practice tasks](tasks/practice.md)
