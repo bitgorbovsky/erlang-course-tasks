@@ -5,9 +5,32 @@
 
 ## Стандартная документация
 
+ - [Spawn, monitor, link](http://erlang.org/doc/man/erlang.html)
+ - [Общие сведения](http://erlang.org/doc/reference_manual/processes.html)
+
 ### Материалы для изучения
 
+ - [Введение в
+   процессы](http://learnyousomeerlang.com/the-hitchhikers-guide-to-concurrency)
+ - [Параллельные
+   вычисления](http://learnyousomeerlang.com/more-on-multiprocessing)
+ - [Обработка ошибок в
+   процессах](http://learnyousomeerlang.com/errors-and-processes)
+ - Joe Armstrong, Programming in Erlang, Ch 8 Concurrent Programming, p.
+   142-158.
+ - Joe Armstrong, Programming in Erlang, Ch 9 Error in Concurrent Programs, p.
+   159-174.
+
 ### Вопросы
+
+ - В чем преимущество операции `spawn_link/1` перед комбинацией `spawn/1` +
+   `link/1`. Приведите пример ситуации, когда последовательность двух операций
+   работает неправильно по сравнению с атомарной операцией `spawn_link`.
+ - Оболочка Erlang (shell) также является процессом. Как просмотреть список всех
+   сообщений, которые попали в почтовый ящик процесса оболочки?
+ - За что отвечает ключевое слово `after` в примитиве приема сообщений?
+ - Обмен сообщениями асинхронный. Как сделать синхронный обмен сообщениями? Как
+   добиться взаимоблокировки процессов?
 
 ### Упражнения
 
@@ -54,7 +77,38 @@ proc(State) ->
     proc(NewState).
 ```
 
-## Этюды для программистов
+### 3.2. Parallelisation
+
+```erlang
+-module(pmap).
+-compile(export_all).
+
+parallel(Funs) ->
+    Self = self(),
+    SpawnProc = fun(Func) ->
+        spawn(fun() ->
+            Result = Func(),
+            Self ! {self(), Result}
+        end)
+    end,
+    Pids = [SpawnProc(Fun) || Fun <- Funs],
+    get_result(Pids, []).
+
+get_result([], Acc) ->
+    lists:reverse(Acc);
+get_result([First|Pids], Acc) ->
+    receive
+        {First, Result} ->
+            get_result(Pids, [{First, Result}|Acc])
+    end.
+```
+
+На основе вышеприведенного примера реализуйте следующее:
+ - параллелизованную версию функции `map`;
+ - параллелизованную версию функции `foldl`;
+ - скомбинируйте решения и реализуйте простой map/reduce.
+
+## Этюды
 
 Ниже вашему вниманию предлагаются задания для командной или индивидуальной
 работы. Каждое из этих заданий предполагает выделение постановки задачи,
