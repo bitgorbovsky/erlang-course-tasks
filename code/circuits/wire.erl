@@ -1,6 +1,7 @@
 -module(wire).
 -export([
     make/0,
+    signal/1,
     signal/2,
     add_reaction/2,
     reset/1
@@ -14,6 +15,9 @@
 
 make() ->
     gen_proc:start(?MODULE, []).
+
+signal(Wire) ->
+    gen_proc:send(Wire, signal).
 
 signal(Wire, Signal) ->
     gen_proc:send(Wire, {signal, Signal}).
@@ -30,16 +34,17 @@ init(_) ->
         reaction => []
     }.
 
-
+handle_message(signal, #{signal := Signal} = State) ->
+    {reply, Signal, State};
 handle_message({signal, Signal}, #{signal := Signal} = State) ->
-    {ok, State};
+    {reply, ok, State};
 handle_message({signal, Signal}, #{reaction := Actions} = State) ->
     [Action(Signal) || Action <- Actions],
-    {ok, State#{signal => Signal}};
+    {reply, ok, State#{signal => Signal}};
 handle_message({add_reaction, Action}, #{reaction := Actions} = State) ->
-    {ok, State#{reaction => [Action|Actions]}};
+    {reply, ok, State#{reaction => [Action|Actions]}};
 handle_message(reset, State) ->
-    {ok, State#{signal => undefined}}.
+    {reply, ok, State#{signal => undefined}}.
 
 
 terminate(_) ->

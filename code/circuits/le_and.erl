@@ -28,32 +28,36 @@ init([WireIn1, WireIn2, WireOut]) ->
     wire:add_reaction(WireIn1, SignalSetter(0)),
     wire:add_reaction(WireIn2, SignalSetter(1)),
     #{
-        out_signal => undefined,
+        state => init,
+        wait_pin => undefined,
         action => fun(Signal) ->
             wire:signal(WireOut, Signal)
         end
     }.
 
 
-handle_message(
-    {set_pin, _, false},
-    #{out_signal := undefined, action := Action} = State
-) ->
-    Action(false),
-    {ok, State#{out_signal => false}};
-handle_message({set_pin, Pin, true}, #{out_signal := undefined} = State) ->
-    {ok, State#{out_signal => {wait_pin, opposite_pin(Pin)}}};
-handle_message(
-    {set_pin, Pin, true},
-    #{out_signal := {wait_pin, Pin}, action := Action} = State
-) ->
-    Action(true),
-    {ok, State#{out_signal => true}};
+handle_message({set_pin, Pin, Level}, State) ->
+    NewState = set_pin(Pin, Level, State),
+    {reply, ok, NewState};
 handle_message(reset, State) ->
-    {ok, State#{signal => undefined}}.
+    {reply, ok, State#{state => init, wait_pin => undefined}}.
 
 terminate(_) ->
     ok.
+
+set_pin(_, false, #{state := init, action := Action} = State) ->
+    Action(false),
+    State#{state => resolved};
+set_pin(_, false, #{state := wait, action := Action} = State) ->
+    Action(false),
+    State#{state => resolved};
+set_pin(Pin, true, #{state := init} = State) ->
+    State#{state => wait, wait_pin => opposite_pin(Pin)};
+set_pin(Pin, true, #{state := wait, wait_pin := Pin, action := Action} = State) ->
+    Action(true),
+    State#{state := resolved};
+set_pin(_, _, #{state := resolved} = State) ->
+    State.
 
 opposite_pin(0) -> 1;
 opposite_pin(1) -> 0.
